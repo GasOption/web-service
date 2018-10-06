@@ -4,6 +4,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -13,11 +14,12 @@ import (
 )
 
 type Handler struct {
-	store *store.Store
+	store   *store.Store
+	ethAddr string
 }
 
-func New(store *store.Store) *Handler {
-	return &Handler{store: store}
+func New(store *store.Store, ethAddr string) *Handler {
+	return &Handler{store: store, ethAddr: ethAddr}
 }
 
 // GetGasPrice gets latest gas price.
@@ -56,4 +58,20 @@ func (h *Handler) UpdateTxnList(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetPool(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(h.store.Pool())
+}
+
+func (h *Handler) CreateJsonRpc(w http.ResponseWriter, r *http.Request) {
+	log.Printf("json rpc incoming: %v", r)
+	resp, err := http.Post(h.ethAddr, "application/json", r.Body)
+	if err != nil {
+		json.NewEncoder(w).Encode(fmt.Errorf("http.Post() = %v", err))
+	}
+
+	log.Printf("json rpc response: %v", resp)
+	defer resp.Body.Close()
+	buf, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		json.NewEncoder(w).Encode(fmt.Errorf("ioutil.ReadAll() = %v", err))
+	}
+	w.Write(buf)
 }

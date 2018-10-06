@@ -15,7 +15,7 @@ import (
 
 var (
 	port    = flag.String("port", ":8080", "Port.")
-	ethAddr = flag.String("eth_addr", "https://rinkeby.infura.io", "ETH blockchain address.")
+	ethAddr = flag.String("eth_addr", "http://localhost:8545", "ETH blockchain address.")
 )
 
 func main() {
@@ -35,10 +35,11 @@ func main() {
 
 	// Router and handler.
 	router := mux.NewRouter()
-	handlerClient := handler.New(storeClient)
+	handlerClient := handler.New(storeClient, *ethAddr)
 	router.HandleFunc("/gasprice", handlerClient.GetGasPrice).Methods("GET")
 	router.HandleFunc("/transactionlist", handlerClient.UpdateTxnList).Methods("POST")
 	router.HandleFunc("/pool", handlerClient.GetPool).Methods("GET")
+	router.HandleFunc("/", handlerClient.CreateJsonRpc).Methods("POST")
 
 	// HTTP server.
 	log.Printf("Running web service at port %v", *port)
