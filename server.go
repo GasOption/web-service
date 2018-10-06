@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/GasOption/web-service/handler"
+	"github.com/GasOption/web-service/store"
 	"github.com/GasOption/web-service/txn"
 	"github.com/gorilla/mux"
 )
@@ -32,10 +33,17 @@ func main() {
 		}
 	*/
 
-	// REST server.
+	// Store client.
+	storeClient := store.New()
+
+	// Router and handler.
 	router := mux.NewRouter()
-	router.HandleFunc("/gasprice", handler.GetGasPrice).Methods("GET")
-	router.HandleFunc("/transactionlist", handler.UpdateTxnList).Methods("POST")
+	handlerClient := handler.New(storeClient)
+	router.HandleFunc("/gasprice", handlerClient.GetGasPrice).Methods("GET")
+	router.HandleFunc("/transactionlist", handlerClient.UpdateTxnList).Methods("POST")
+	router.HandleFunc("/pool", handlerClient.GetPool).Methods("GET")
+
+	// HTTP server.
 	log.Printf("Running web service at port %v", *port)
 	log.Fatal(http.ListenAndServe(*port, router))
 }
