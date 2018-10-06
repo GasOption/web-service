@@ -28,6 +28,7 @@ func Process(ctx context.Context, storeClient *store.Store, txnClient *txn.TxnCl
 					continue
 				}
 
+				log.Printf("Submitting the transaction with hash value: %v", txn.HexHash)
 				if err := txnClient.SendTransaction(ctx, txn.RawTxn); err != nil {
 					log.Fatalf("txnClient.SendTransaction() = %v", err)
 				}
