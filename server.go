@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 
@@ -8,9 +9,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var (
+	port = flag.String("port", ":8080", "Port.")
+)
+
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/gasprice", handler.GetGasPrice).Methods("GET")
 	router.HandleFunc("/transactionlist/{id}", handler.CreateTransactionList).Methods("POST")
-	log.Fatal(http.ListenAndServe(":8080", router))
+
+	log.Printf("Running web service at port %v", *port)
+	log.Fatal(http.ListenAndServe(*port, router))
 }

@@ -1,3 +1,4 @@
+// Package hander provides HTTP handling methods for the REST web service.
 package handler
 
 import (
