@@ -6,6 +6,8 @@ Install dep by following: https://github.com/golang/dep#installation
 
 dep ensure
 
+testrpc
+
 go run server.go
 
 # misc
