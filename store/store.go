@@ -2,8 +2,6 @@
 package store
 
 import (
-	"fmt"
-
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -28,23 +26,16 @@ func New() *Store {
 	return &Store{pool: pool}
 }
 
-func (s *Store) AddToPool(rawTxns []*types.Transaction) error {
-	if len(rawTxns) == 0 {
-		return fmt.Errorf("empty rawTxns")
+func (s *Store) AddToPool(rawTxn *types.Transaction) error {
+	if _, ok := s.pool[rawTxn.Nonce()]; !ok {
+		s.pool[rawTxn.Nonce()] = &TxnBundle{Processed: false}
 	}
-
-	txnBundle := &TxnBundle{Processed: false}
-	for _, rawTxn := range rawTxns {
-		txnBundle.Bundle = append(txnBundle.Bundle, &Txn{
-			Submitted: false,
-			GasPrice:  rawTxn.Gas(),
-			HexHash:   rawTxn.Hash().Hex(),
-			RawTxn:    rawTxn,
-		})
-	}
-
-	s.pool[rawTxns[0].Nonce()] = txnBundle
-
+	s.pool[rawTxn.Nonce()].Bundle = append(s.pool[rawTxn.Nonce()].Bundle, &Txn{
+		Submitted: false,
+		GasPrice:  rawTxn.Gas(),
+		HexHash:   rawTxn.Hash().Hex(),
+		RawTxn:    rawTxn,
+	})
 	return nil
 }
 

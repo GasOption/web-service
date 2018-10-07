@@ -12,7 +12,6 @@ import (
 
 	"github.com/GasOption/web-service/store"
 	"github.com/GasOption/web-service/txn"
-	"github.com/ethereum/go-ethereum/core/types"
 )
 
 type Handler struct {
@@ -40,20 +39,17 @@ func (h *Handler) UpdateTxnList(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Print(hexTxnList)
 
-	// Decode hex transactions into raw transactions.
-	var rawTxns []*types.Transaction
-	for _, hexTxn := range hexTxnList.List {
-		log.Printf("Decoding hex transaction: %v", hexTxn)
-		rawTxn, err := txn.Decode(hexTxn)
-		if err != nil {
-			json.NewEncoder(w).Encode(fmt.Errorf("txn.Decode() = %v", err))
-			return
-		}
-		rawTxns = append(rawTxns, rawTxn)
+	// Decode hex transaction into raw transaction.
+	hexTxn := hexTxnList.List[0]
+	log.Printf("Decoding hex transaction: %v", hexTxn)
+	rawTxn, err := txn.Decode(hexTxn)
+	if err != nil {
+		json.NewEncoder(w).Encode(fmt.Errorf("txn.Decode() = %v", err))
+		return
 	}
 
 	// Add raw transactions to storage pool,
-	if err := h.store.AddToPool(rawTxns); err != nil {
+	if err := h.store.AddToPool(rawTxn); err != nil {
 		json.NewEncoder(w).Encode(fmt.Errorf("store.AddToPool() = %v", err))
 	}
 
@@ -85,20 +81,16 @@ func (h *Handler) CreateJsonRpc(w http.ResponseWriter, r *http.Request) {
 		log.Printf("params for eth_sendRawTransaction: %v", jsonRpcRequest.Params)
 
 		// Decode hex transactions into raw transactions.
-		var rawTxns []*types.Transaction
-		for _, hexTxn := range jsonRpcRequest.Params {
-			log.Printf("Decoding hex transaction: %v", hexTxn)
-			rawTxn, err := txn.Decode(hexTxn.(string))
-			if err != nil {
-				log.Printf("txn.Decode() = %v", err)
-				//json.NewEncoder(w).Encode(fmt.Errorf("txn.Decode() = %v", err))
-				break
-			}
-			rawTxns = append(rawTxns, rawTxn)
+		hexTxn := jsonRpcRequest.Params[0]
+		log.Printf("Decoding hex transaction: %v", hexTxn)
+		rawTxn, err := txn.Decode(hexTxn.(string))
+		if err != nil {
+			log.Printf("txn.Decode() = %v", err)
+			//json.NewEncoder(w).Encode(fmt.Errorf("txn.Decode() = %v", err))
 		}
 
 		// Add raw transactions to storage pool,
-		if err := h.store.AddToPool(rawTxns); err != nil {
+		if err := h.store.AddToPool(rawTxn); err != nil {
 			log.Printf("store.AddToPool() = %v", err)
 			//json.NewEncoder(w).Encode(fmt.Errorf("store.AddToPool() = %v", err))
 		}
