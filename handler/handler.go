@@ -26,7 +26,7 @@ func New(store *store.Store, ethAddr string) *Handler {
 // GetGasPrice gets latest gas price.
 func (h *Handler) GetGasPrice(w http.ResponseWriter, r *http.Request) {
 	// Header.
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	enableCors(&w)
 
 	//params := mux.Vars(r)
 	json.NewEncoder(w).Encode("hello")
@@ -36,7 +36,7 @@ func (h *Handler) GetGasPrice(w http.ResponseWriter, r *http.Request) {
 // pool.
 func (h *Handler) UpdateTxnList(w http.ResponseWriter, r *http.Request) {
 	// Header.
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	enableCors(&w)
 
 	// Parse POST body.
 	var hexTxnList txn.HexTxnList
@@ -64,14 +64,14 @@ func (h *Handler) UpdateTxnList(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetPool(w http.ResponseWriter, r *http.Request) {
 	// Header.
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	enableCors(&w)
 
 	json.NewEncoder(w).Encode(h.store.Pool())
 }
 
 func (h *Handler) CreateJsonRpc(w http.ResponseWriter, r *http.Request) {
 	// Header.
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	enableCors(&w)
 
 	var buf bytes.Buffer
 	tee := io.TeeReader(r.Body, &buf)
@@ -133,4 +133,8 @@ func (h *Handler) CreateJsonRpc(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Write(buf2)
 	}
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
