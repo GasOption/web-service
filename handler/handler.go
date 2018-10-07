@@ -37,6 +37,9 @@ func (h *Handler) GetGasPrice(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdateTxnList(w http.ResponseWriter, r *http.Request) {
 	// Header.
 	enableCors(&w)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
 
 	// Parse POST body.
 	var hexTxnList txn.HexTxnList
@@ -72,6 +75,9 @@ func (h *Handler) GetPool(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreateJsonRpc(w http.ResponseWriter, r *http.Request) {
 	// Header.
 	enableCors(&w)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
 
 	var buf bytes.Buffer
 	tee := io.TeeReader(r.Body, &buf)

@@ -37,9 +37,9 @@ func main() {
 	router := mux.NewRouter()
 	handlerClient := handler.New(storeClient, *ethAddr)
 	router.HandleFunc("/gasprice", handlerClient.GetGasPrice).Methods("GET")
-	router.HandleFunc("/transactionlist", handlerClient.UpdateTxnList).Methods("POST")
+	router.HandleFunc("/transactionlist", handlerClient.UpdateTxnList).Methods("POST").Methods("OPTIONS")
 	router.HandleFunc("/pool", handlerClient.GetPool).Methods("GET")
-	router.HandleFunc("/", handlerClient.CreateJsonRpc).Methods("POST")
+	router.HandleFunc("/", handlerClient.CreateJsonRpc).Methods("POST").Methods("OPTIONS")
 
 	// HTTP server.
 	log.Printf("Running web service at port %v", *port)
